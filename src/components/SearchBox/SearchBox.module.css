@@ -1,0 +1,19 @@
+.searchBox {
+    display: flex;
+    width: 408px;
+    height: 50px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border-color: #FF9900;
+}
+
+.labelFilter {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    color: #ffffff;
+    font-size: 18px;
+    width: 408px;
+    height: 80px;
+}
