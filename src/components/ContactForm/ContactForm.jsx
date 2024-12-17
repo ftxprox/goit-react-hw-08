@@ -2,11 +2,9 @@ import css from './ContactForm.module.css';
 import { useId } from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { nanoid } from 'nanoid';
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from '../../redux/contactsOps';
-import { selectContacts } from '../../redux/contactsSlice';
-
+import { selectContacts } from '../../redux/contacts/selectors';
+import { addContact } from '../../redux/contacts/operations';
 
 const ContactForm = () => {
   const idName = useId();
@@ -18,10 +16,7 @@ const ContactForm = () => {
       .max(50, 'Too Long!')
       .required('Required'),
     number: Yup.string()
-      .matches(
-        /^(\d{2,4}-?)+\d{2,4}$/,
-        'Number must be between 6 and 15 digits and can include hyphens, e.g., 123-456-7890',
-      )
+      .matches(/^\+?[0-9\s\-()]+$/, 'Invalid phone number format.')
       .required('Number is required'),
   });
 
@@ -32,21 +27,32 @@ const ContactForm = () => {
 
   const dispatch = useDispatch();
   const contacts = useSelector(selectContacts);
-  const handleSubmit = (values, actions) => {
+  const isLoading = useSelector(state => state.contacts.isLoading);
+
+  const handleSubmit = async (values, actions) => {
     const { name, number } = values;
 
     const isDuplicate = contacts.some(
-      (contact) => contact.name.toLowerCase() === name.toLowerCase()
+      contact =>
+        contact.name.toLowerCase() === name.toLowerCase() ||
+        contact.number === number,
     );
 
     if (isDuplicate) {
-      alert(`Contact with name "${name}" already exists!`); 
+      alert(
+        `Contact with name "${name}" or number "${number}" already exists!`,
+      );
       return;
     }
-    const data = { ...values, id: nanoid(6) };
-    actions.resetForm();
-    dispatch(addContact(data));
+
+    try {
+      await dispatch(addContact({ name, number }));
+      actions.resetForm();
+    } catch (error) {
+      alert('Failed to add contact. Please try again!');
+    }
   };
+
   return (
     <Formik
       initialValues={initialValues}
@@ -91,9 +97,9 @@ const ContactForm = () => {
           <button
             className={css.buttonAdd}
             type="submit"
-            disabled={!isValid || !dirty}
+            disabled={!isValid || !dirty || isLoading}
           >
-            Add contact
+            {isLoading ? 'Adding...' : 'Add contact'}
           </button>
         </Form>
       )}
@@ -101,4 +107,4 @@ const ContactForm = () => {
   );
 };
 
-export default ContactForm
+export default ContactForm;

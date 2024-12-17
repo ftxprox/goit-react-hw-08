@@ -1,0 +1,9 @@
+.boxAuthNav{
+display: flex;
+flex-direction: row;
+}
+
+.btn{
+    color: #ffff;
+    font-size: 25px;
+}

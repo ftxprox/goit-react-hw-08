@@ -6,7 +6,7 @@ return <div className={css.loader}>
     <InfinitySpin
   visible={true}
   width="200"
-  color="blue"
+  color="#FF9900"
   ariaLabel="infinity-spin-loading"/>
     </div>
 }
